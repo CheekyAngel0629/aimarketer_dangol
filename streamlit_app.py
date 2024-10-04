@@ -59,7 +59,7 @@ def main():
 
     st.set_page_config(page_title="AI마케터")
 
-    st.title("AI마케터 유통업무 Chatbot")
+    st.title("AI마케터 단골업무 Chatbot")
 
     if "chat_history" not in st.session_state:
         st.session_state.chat_history = None
@@ -94,7 +94,7 @@ def main():
         data_folder = os.path.join(current_dir, "data")
             
 
-        files_to_load = ["1.개요.docx", "2.매뉴얼.docx"]
+        files_to_load = ["단골요건_20240926.docx"]
         files_text = load_files(data_folder, files_to_load)
 
         text_chunks = get_text_chunks(files_text)
@@ -106,7 +106,7 @@ def main():
 
     if 'messages' not in st.session_state:
         st.session_state['messages'] = [{"role": "assistant",
-                                         "content": "안녕하세요! AI마케터 유통업무 chatbot 입니다. 궁금한 점을 물어보세요."}]
+                                         "content": "안녕하세요! AI마케터 단골업무 chatbot 입니다. 궁금한 점을 물어보세요."}]
         
 
     for message in st.session_state.messages:
