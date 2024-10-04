@@ -100,7 +100,18 @@ def main():
         files_text = load_files(data_folder, files_to_load)
 
         text_chunks = get_text_chunks(files_text)
+
+        ## 에러 디버깅을 위해 추가
+        st.write("Text chunks type:", type(text_chunks))
+        if text_chunks:
+            st.write("First chunk type:", type(text_chunks[0]))
+            st.write("First chunk content:", text_chunks[0])
+
         vectorstore = get_vectorstore(text_chunks)
+        ## 에러 디버깅용 
+        if vectorstore is None:
+            st.error("벡터 저장소를 생성할 수 없습니다. 프로그램을 종료합니다.")
+            st.stop()
 
         st.session_state.conversation = get_conversation_chain(vectorstore, openai_api_key)
         st.session_state.processComplete = True
@@ -183,15 +194,21 @@ def get_text_chunks(_text):
         chunk_overlap=100,
         length_function=tiktoken_len
     )
+    
+    if not _text:
+        st.warning("입력 텍스트가 비어있습니다.")
+        return []
+    
     if isinstance(_text, list):
-        if all(isinstance(item, str) for item in _text):
-            return text_splitter.create_documents(_text)
-        elif all(hasattr(item, 'page_content') for item in _text):
+        if all(isinstance(item, Document) for item in _text):
             return text_splitter.split_documents(_text)
+        elif all(isinstance(item, str) for item in _text):
+            return text_splitter.create_documents(_text)
     elif isinstance(_text, str):
         return text_splitter.create_documents([_text])
     
-    raise ValueError(f"Unexpected type for _text: {type(_text)}")
+    st.error(f"Unexpected type for _text: {type(_text)}")
+    return []
 
 
 
@@ -203,6 +220,10 @@ def get_vectorstore(_text_chunks):
         model_kwargs={'device': 'cpu'},
         encode_kwargs={'normalize_embeddings': True}
     )
+    
+    if not _text_chunks:
+        st.error("텍스트 청크가 비어있습니다. 문서를 제대로 로드했는지 확인해주세요.")
+        return None
     
     if not isinstance(_text_chunks[0], Document):
         _text_chunks = [Document(page_content=chunk) for chunk in _text_chunks]
