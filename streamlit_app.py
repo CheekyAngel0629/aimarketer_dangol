@@ -18,6 +18,8 @@ from langchain_community.document_loaders import UnstructuredPowerPointLoader
 from langchain_community.document_loaders import TextLoader
 # 9/5 txt파일 인식을 위해 추가 (클로드)
 
+from langchain.schema import Document
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 # 긴 텍스트를 자연스러운 범위 내에서 분할
 from langchain_community.embeddings import HuggingFaceEmbeddings
