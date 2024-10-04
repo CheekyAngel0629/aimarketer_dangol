@@ -46,8 +46,7 @@ def load_files(_data_folder, _files_to_load):
     for filename in _files_to_load:
         file_path = os.path.join(_data_folder, filename)
         if os.path.exists(file_path):
-            docs = load_document(file_path)
-            files_text.extend([doc.page_content for doc in docs])
+            files_text.extend(load_document(file_path))
         else:
             st.warning(f"파일을 찾을 수 없습니다: {filename}")
     return files_text
@@ -155,13 +154,7 @@ def load_document(file_path):
         return PyPDFLoader(file_path).load_and_split()
     elif file_path.endswith('.docx'):
         loader = Docx2txtLoader(file_path)
-        documents = loader.load()
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=900,
-            chunk_overlap=100,
-            length_function=tiktoken_len
-            )
-        return text_splitter.split_documents(documents)
+        return loader.load()
     elif file_path.endswith('.pptx'):
         return UnstructuredPowerPointLoader(file_path).load_and_split()
     elif file_path.endswith('.txt'):
@@ -190,21 +183,18 @@ def get_text_chunks(_text):
         chunk_overlap=100,
         length_function=tiktoken_len
     )
-    if isinstance(_text, str):
-        chunks = text_splitter.split_text(_text)
-    elif isinstance(_text, list):
-        chunks = []
-        for doc in _text:
-            if isinstance(doc, str):
-                chunks.extend(text_splitter.split_text(doc))
-            elif hasattr(doc, 'page_content'):
-                chunks.extend(text_splitter.split_text(doc.page_content))
-            else:
-                st.warning(f"Unexpected document type: {type(doc)}")
-    else:
-        raise ValueError(f"Unexpected type for _text: {type(_text)}")
+    if isinstance(_text, list):
+        if all(isinstance(item, str) for item in _text):
+            return text_splitter.create_documents(_text)
+        elif all(hasattr(item, 'page_content') for item in _text):
+            return text_splitter.split_documents(_text)
+    elif isinstance(_text, str):
+        return text_splitter.create_documents([_text])
     
-    return chunks
+    raise ValueError(f"Unexpected type for _text: {type(_text)}")
+
+
+
 
 @st.cache_resource
 def get_vectorstore(_text_chunks):
@@ -213,6 +203,10 @@ def get_vectorstore(_text_chunks):
         model_kwargs={'device': 'cpu'},
         encode_kwargs={'normalize_embeddings': True}
     )
+    
+    if not isinstance(_text_chunks[0], Document):
+        _text_chunks = [Document(page_content=chunk) for chunk in _text_chunks]
+    
     vectordb = FAISS.from_documents(_text_chunks, embeddings)
     return vectordb
 
