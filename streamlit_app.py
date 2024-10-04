@@ -46,7 +46,8 @@ def load_files(_data_folder, _files_to_load):
     for filename in _files_to_load:
         file_path = os.path.join(_data_folder, filename)
         if os.path.exists(file_path):
-            files_text.extend(load_document(file_path))
+            docs = load_document(file_path)
+            files_text.extend([doc.page_content for doc in docs])
         else:
             st.warning(f"파일을 찾을 수 없습니다: {filename}")
     return files_text
@@ -153,18 +154,14 @@ def load_document(file_path):
     if file_path.endswith('.pdf'):
         return PyPDFLoader(file_path).load_and_split()
     elif file_path.endswith('.docx'):
-        doc = Document(file_path)
-        full_text = []
-        for para in doc.paragraphs:
-            full_text.append(para.text)
-        markdown_text = '\n'.join(full_text)
-        html = markdown.markdown(markdown_text)
+        loader = Docx2txtLoader(file_path)
+        documents = loader.load()
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=900,
             chunk_overlap=100,
             length_function=tiktoken_len
-        )
-        return text_splitter.split_text(html)
+            )
+        return text_splitter.split_documents(documents)
     elif file_path.endswith('.pptx'):
         return UnstructuredPowerPointLoader(file_path).load_and_split()
     elif file_path.endswith('.txt'):
