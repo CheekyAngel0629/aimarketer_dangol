@@ -98,7 +98,7 @@ def main():
         data_folder = os.path.join(current_dir, "data")
             
 
-        files_to_load = ["단골요건_20240926.docx"]
+        files_to_load = ["단골요건_20241004.docx"]
         files_text = load_files(data_folder, files_to_load)
 
         text_chunks = get_text_chunks(files_text)
@@ -236,7 +236,7 @@ def get_vectorstore(_text_chunks):
 
 @st.cache_resource
 def get_conversation_chain(_vetorestore, _openai_api_key):
-    llm = ChatOpenAI(openai_api_key=_openai_api_key, model_name="gpt-4o-mini", temperature=0)
+    llm = ChatOpenAI(openai_api_key=_openai_api_key, model_name="gpt-4o-mini", temperature=0.5)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         chain_type="stuff",
