@@ -188,12 +188,25 @@ def get_text(docs):
 
 @st.cache_data
 def get_text_chunks(_text):
+    # 아래 두 라인은 확인용으로 추가
+    print(f"Type of _text: {type(_text)}")
+    print(f"Content of _text: {_text}")
+
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=900,
         chunk_overlap=100,
         length_function=tiktoken_len
     )
-    chunks = text_splitter.split_documents(_text)
+    # _text가 문자열 리스트인 경우
+    if isinstance(_text, list) and all(isinstance(item, str) for item in _text):
+        chunks = text_splitter.split_text(_text)
+    # _text가 Document 객체 리스트인 경우
+    elif isinstance(_text, list) and all(hasattr(item, 'page_content') for item in _text):
+        chunks = text_splitter.split_documents(_text)
+    else:
+        raise ValueError(f"Unexpected type for _text: {type(_text)}")
+
+    # chunks = text_splitter.split_documents(_text)
     return chunks
 
 @st.cache_resource
