@@ -5,8 +5,6 @@ from loguru import logger   # loguru 라이브러리에서 logger 객체 호출
 import os       # 운영체제와 상호작용
 import tempfile # 임시 파일 및 임시 디렉터리를 생성하고 관리
 
-from docx import Document
-import markdown
 
 from langchain.chains import ConversationalRetrievalChain
 from langchain_community.chat_models import ChatOpenAI
@@ -153,18 +151,7 @@ def load_document(file_path):
     if file_path.endswith('.pdf'):
         return PyPDFLoader(file_path).load_and_split()
     elif file_path.endswith('.docx'):
-        doc = Document(file_path)
-        full_text = []
-        for para in doc.paragraphs:
-            full_text.append(para.text)
-        markdown_text = '\n'.join(full_text)
-        html = markdown.markdown(markdown_text)
-        text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=900,
-            chunk_overlap=100,
-            length_function=tiktoken_len
-        )
-        return text_splitter.split_text(html)
+        return Docx2txtLoader(file_path).load_and_split()
     elif file_path.endswith('.pptx'):
         return UnstructuredPowerPointLoader(file_path).load_and_split()
     elif file_path.endswith('.txt'):
