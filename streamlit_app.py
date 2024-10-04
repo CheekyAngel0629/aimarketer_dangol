@@ -104,10 +104,10 @@ def main():
         text_chunks = get_text_chunks(files_text)
 
         ## 에러 디버깅을 위해 추가
-        st.write("Text chunks type:", type(text_chunks))
-        if text_chunks:
-            st.write("First chunk type:", type(text_chunks[0]))
-            st.write("First chunk content:", text_chunks[0])
+        # st.write("Text chunks type:", type(text_chunks))
+        # if text_chunks:
+        #     st.write("First chunk type:", type(text_chunks[0]))
+        #     st.write("First chunk content:", text_chunks[0])
 
         vectorstore = get_vectorstore(text_chunks)
         ## 에러 디버깅용 
