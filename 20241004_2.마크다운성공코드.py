@@ -61,7 +61,7 @@ def initialize_conversation(_files_text, openai_api_key):
 
 def main():
 
-    st.set_page_config(page_title="AI마케터(단골업무)")
+    st.set_page_config(page_title="AI마케터")
 
     st.title("AI마케터 단골업무 Chatbot")
 
@@ -98,7 +98,7 @@ def main():
         data_folder = os.path.join(current_dir, "data")
             
 
-        files_to_load = ["단골요건(doc버전)_20241010.docx"]
+        files_to_load = ["단골요건_20241004.docx"]
         files_text = load_files(data_folder, files_to_load)
 
         text_chunks = get_text_chunks(files_text)
