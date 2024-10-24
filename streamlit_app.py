@@ -236,7 +236,7 @@ def get_vectorstore(_text_chunks):
 
 @st.cache_resource
 def get_conversation_chain(_vetorestore, _openai_api_key):
-    llm = ChatOpenAI(openai_api_key=_openai_api_key, model_name="gpt-4o-mini", temperature=0.5)
+    llm = ChatOpenAI(openai_api_key=_openai_api_key, model_name="gpt-4o-mini", temperature=0.2)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         chain_type="stuff",
